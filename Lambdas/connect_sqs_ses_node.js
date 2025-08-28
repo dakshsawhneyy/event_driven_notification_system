@@ -10,12 +10,22 @@ export const handler = async(event) => {
     // Loop over all sqs events
     for(const record of event.Records){
 
-      const {toEmail, subject, message} = JSON.parse(record.body)
+      const snsEnvelope = JSON.parse(record.body);
+      const body = JSON.parse(snsEnvelope.Message);
+
+      console.log("Body:" ,body);
+
+      const {toEmail, subject, message} = body;
+
+      if (!toEmail || !subject || !message) {
+        console.error("❌ Missing required fields, skipping:", body);
+        throw new Error("Missing required fields");
+      }
 
       const params = {
-        Source: 'dakshsawhney2@gmail.com',
+        Source: "dakshsawhney2@gmail.com",
         Destination: {
-          ToAddresses: ['dakshsawhneyy@gmail.com']
+          ToAddresses: [toEmail]
         },
         Message: {
           Subject: {
